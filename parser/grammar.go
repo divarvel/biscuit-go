@@ -249,12 +249,13 @@ const (
 	OpUnion
 	OpLength
 	OpNegate
+	OpStrictEqual
 )
 
 var operatorMap = map[string]Operator{
 	"+": OpAdd,
 	"-": OpSub, "*": OpMul, "/": OpDiv, "&&": OpAnd, "||": OpOr, "<=": OpLessOrEqual, ">=": OpGreaterOrEqual, "<": OpLessThan, ">": OpGreaterThan,
-	"==": OpEqual, "!": OpNegate, "contains": OpContains, "starts_with": OpPrefix, "ends_with": OpSuffix, "matches": OpMatches, "intersection": OpIntersection, "union": OpUnion, "length": OpLength}
+	"==": OpEqual, "===": OpStrictEqual, "!": OpNegate, "contains": OpContains, "starts_with": OpPrefix, "ends_with": OpSuffix, "matches": OpMatches, "intersection": OpIntersection, "union": OpUnion, "length": OpLength}
 
 func (o *Operator) Capture(s []string) error {
 	*o = operatorMap[s[0]]

@@ -13,8 +13,20 @@ import (
 	"github.com/biscuit-auth/biscuit-go/v2/datalog"
 )
 
+// minimum supported version of the serialization format
 const MinSchemaVersion uint32 = 3
-const MaxSchemaVersion uint32 = 3
+
+// maximum supported version of the serialization format
+const MaxSchemaVersion uint32 = 4
+
+// starting version for datalog 3.1 features (check all, bitwise operators, !=, …)
+const Datalog31 uint32 = 4
+
+// starting version for 3rd party blocks (datalog 3.2)
+const Datalog32 uint32 = 5
+
+// starting version for datalog 3.3 features (reject if, closures, array/map, null, external functions, …)
+const Datalog33 uint32 = 6
 
 // defaultSymbolTable predefines some symbols available in every implementation, to avoid
 // transmitting them with every token

@@ -156,33 +156,32 @@ func protoTermToTokenTerm(input *pb.Term) (*datalog.Term, error) {
 		id = datalog.Bool(input.GetBool())
 	case *pb.Term_Set:
 		elts := input.GetSet().Set
-		if len(elts) == 0 {
-			return nil, errors.New("biscuit: failed to convert proto ID to token ID: set cannot be empty")
-		}
-
-		expectedEltType := reflect.TypeOf(elts[0].GetContent())
-		switch expectedEltType {
-		case reflect.TypeOf(&pb.Term_Variable{}):
-			return nil, errors.New("biscuit: failed to convert proto ID to token ID: set cannot contains variable")
-		case reflect.TypeOf(&pb.Term_Set{}):
-			return nil, errors.New("biscuit: failed to convert proto ID to token ID: set cannot contains other sets")
-		}
-
 		datalogSet := make(datalog.TermSet, 0, len(elts))
-		for _, protoElt := range elts {
-			if eltType := reflect.TypeOf(protoElt.GetContent()); eltType != expectedEltType {
-				return nil, fmt.Errorf(
-					"biscuit: failed to convert proto ID to token ID: set elements must have the same type (got %x, want %x)",
-					eltType,
-					expectedEltType,
-				)
+
+		if len(elts) > 0 {
+			expectedEltType := reflect.TypeOf(elts[0].GetContent())
+			switch expectedEltType {
+			case reflect.TypeOf(&pb.Term_Variable{}):
+				return nil, errors.New("biscuit: failed to convert proto ID to token ID: set cannot contains variable")
+			case reflect.TypeOf(&pb.Term_Set{}):
+				return nil, errors.New("biscuit: failed to convert proto ID to token ID: set cannot contains other sets")
 			}
 
-			datalogElt, err := protoTermToTokenTerm(protoElt)
-			if err != nil {
-				return nil, err
+			for _, protoElt := range elts {
+				if eltType := reflect.TypeOf(protoElt.GetContent()); eltType != expectedEltType {
+					return nil, fmt.Errorf(
+						"biscuit: failed to convert proto ID to token ID: set elements must have the same type (got %x, want %x)",
+						eltType,
+						expectedEltType,
+					)
+				}
+
+				datalogElt, err := protoTermToTokenTerm(protoElt)
+				if err != nil {
+					return nil, err
+				}
+				datalogSet = append(datalogSet, *datalogElt)
 			}
-			datalogSet = append(datalogSet, *datalogElt)
 		}
 		id = datalogSet
 	default:
