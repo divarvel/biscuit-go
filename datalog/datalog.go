@@ -264,7 +264,16 @@ func (r Rule) Apply(ruleOrigin uint64, factsIterator *FactIterator, newFacts *Or
 
 type Check struct {
 	Queries []Rule
+	Kind    CheckKind
 }
+
+type CheckKind int
+
+const (
+	CheckKindOne CheckKind = iota
+	CheckKindAll
+	CheckKindReject
+)
 
 type runLimits struct {
 	maxFacts      int

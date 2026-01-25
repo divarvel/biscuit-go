@@ -64,17 +64,19 @@ func protoBlockToTokenBlock(input *pb.Block) (*Block, error) {
 	var rules []datalog.Rule
 	var checks []datalog.Check
 
-	if input.GetVersion() < MinSchemaVersion {
+	var version uint32 = input.GetVersion()
+
+	if version < MinSchemaVersion {
 		return nil, fmt.Errorf(
 			"biscuit: failed to convert proto block to token block: block version: %d < library version %d",
-			input.GetVersion(),
+			version,
 			MinSchemaVersion,
 		)
 	}
-	if input.GetVersion() > MaxSchemaVersion {
+	if version > MaxSchemaVersion {
 		return nil, fmt.Errorf(
 			"biscuit: failed to convert proto block to token block: block version: %d > library version %d",
-			input.GetVersion(),
+			version,
 			MaxSchemaVersion,
 		)
 	}
@@ -99,18 +101,20 @@ func protoBlockToTokenBlock(input *pb.Block) (*Block, error) {
 		rules[i] = *r
 	}
 
-	switch input.GetVersion() {
-	case 3:
-
-		for i, pbCheck := range input.Checks {
-			c, err := protoCheckToTokenCheck(pbCheck)
-			if err != nil {
-				return nil, err
-			}
-			checks[i] = *c
+	for i, pbCheck := range input.Checks {
+		if version < Datalog31 && pbCheck.Kind != nil {
+			return nil, fmt.Errorf("deserialization error: check kinds are only supported on datalog v3.1+ blocks")
 		}
-	default:
-		return nil, fmt.Errorf("biscuit: failed to convert proto block to token block: unsupported version: %d", input.GetVersion())
+
+		if version < Datalog33 && pbCheck.Kind != nil && *pbCheck.Kind == pb.Check_Reject {
+			return nil, fmt.Errorf("deserialization error: reject if checks are only supported on datalog v3.3+ blocks")
+		}
+
+		c, err := protoCheckToTokenCheck(pbCheck)
+		if err != nil {
+			return nil, err
+		}
+		checks[i] = *c
 	}
 
 	return &Block{

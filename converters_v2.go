@@ -439,8 +439,21 @@ func tokenCheckToProtoCheck(input datalog.Check) (*pb.Check, error) {
 		pbQueries[i] = q
 	}
 
+	var kind pb.Check_Kind
+	switch input.Kind {
+	case datalog.CheckKindOne:
+		kind = pb.Check_One
+	case datalog.CheckKindAll:
+		kind = pb.Check_All
+	case datalog.CheckKindReject:
+		kind = pb.Check_Reject
+	default:
+		return nil, fmt.Errorf("deserialization error: invalid check kind: %v", input.Kind)
+	}
+
 	return &pb.Check{
 		Queries: pbQueries,
+		Kind:    &kind,
 	}, nil
 }
 
@@ -454,8 +467,21 @@ func protoCheckToTokenCheck(input *pb.Check) (*datalog.Check, error) {
 		queries[i] = *q
 	}
 
+	var kind datalog.CheckKind
+	switch *input.Kind {
+	case pb.Check_One:
+		kind = datalog.CheckKindOne
+	case pb.Check_All:
+		kind = datalog.CheckKindAll
+	case pb.Check_Reject:
+		kind = datalog.CheckKindReject
+	default:
+		return nil, fmt.Errorf("deserialization error: invalid check kind: %v", input.Kind)
+	}
+
 	return &datalog.Check{
 		Queries: queries,
+		Kind:    kind,
 	}, nil
 }
 
