@@ -398,7 +398,13 @@ func protoExprBinaryToTokenExprBinary(op *pb.OpBinary) (datalog.BinaryOpFunc, er
 	case pb.OpBinary_GreaterOrEqual:
 		binaryOp = datalog.GreaterOrEqual{}
 	case pb.OpBinary_Equal:
+		binaryOp = datalog.StrictEqual{}
+	case pb.OpBinary_NotEqual:
+		binaryOp = datalog.StrictNotEqual{}
+	case pb.OpBinary_HeterogeneousEqual:
 		binaryOp = datalog.Equal{}
+	case pb.OpBinary_HeterogeneousNotEqual:
+		binaryOp = datalog.NotEqual{}
 	case pb.OpBinary_Contains:
 		binaryOp = datalog.Contains{}
 	case pb.OpBinary_Prefix:

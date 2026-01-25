@@ -294,6 +294,14 @@ func TestGrammarExpression(t *testing.T) {
 			},
 		},
 		{
+			Input: `{1, 2}.contains({2})`,
+			Expected: &biscuit.Expression{
+				biscuit.Value{Term: biscuit.Set{biscuit.Integer(1), biscuit.Integer(2)}},
+				biscuit.Value{Term: biscuit.Set{biscuit.Integer(2)}},
+				biscuit.BinaryContains,
+			},
+		},
+		{
 			Input: `{hex:41 }.union({hex:42}).intersection({hex:41}).length() == $0`,
 			Expected: &biscuit.Expression{
 				biscuit.Value{Term: biscuit.Set{biscuit.Bytes([]byte("A"))}},

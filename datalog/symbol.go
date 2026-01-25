@@ -199,6 +199,9 @@ func (d SymbolDebugger) Term(t Term) string {
 	case TermTypeVariable:
 		return "$" + d.Var(t.(Variable))
 	case TermTypeSet:
+		if len(t.(TermSet)) == 0 {
+			return "{,}"
+		}
 		terms := make([]string, len(t.(TermSet)))
 		for i, term := range t.(TermSet) {
 			terms[i] = d.Term(term)

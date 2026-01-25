@@ -436,7 +436,6 @@ func (e *OpExpr7) ToExpr(expr *biscuit.Expression, parameters ParametersMap) {
 }
 
 func (op *Operator) ToExpr(expr *biscuit.Expression) {
-
 	var biscuit_op biscuit.Op
 	switch *op {
 	case OpAnd:
@@ -461,6 +460,12 @@ func (op *Operator) ToExpr(expr *biscuit.Expression) {
 		biscuit_op = biscuit.BinaryGreaterThan
 	case OpEqual:
 		biscuit_op = biscuit.BinaryEqual
+	case OpNotEqual:
+		biscuit_op = biscuit.BinaryNotEqual
+	case OpStrictEqual:
+		biscuit_op = biscuit.BinaryStrictEqual
+	case OpStrictNotEqual:
+		biscuit_op = biscuit.BinaryStrictNotEqual
 	case OpContains:
 		biscuit_op = biscuit.BinaryContains
 	case OpPrefix:
@@ -561,7 +566,7 @@ func (a *Term) ToBiscuit(parameters ParametersMap) (biscuit.Term, error) {
 		}
 		biscuitTerm = biscuitSet
 	case a.EmptySet != nil:
-		biscuitTerm = biscuit.Set{}
+		biscuitTerm = make(biscuit.Set, 0)
 	case a.Parameter != nil:
 		var paramName string = string(*(a.Parameter))
 		paramValue := parameters[paramName]
