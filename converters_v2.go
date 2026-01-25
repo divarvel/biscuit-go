@@ -468,15 +468,19 @@ func protoCheckToTokenCheck(input *pb.Check) (*datalog.Check, error) {
 	}
 
 	var kind datalog.CheckKind
-	switch *input.Kind {
-	case pb.Check_One:
+	if input.Kind == nil {
 		kind = datalog.CheckKindOne
-	case pb.Check_All:
-		kind = datalog.CheckKindAll
-	case pb.Check_Reject:
-		kind = datalog.CheckKindReject
-	default:
-		return nil, fmt.Errorf("deserialization error: invalid check kind: %v", input.Kind)
+	} else {
+		switch *input.Kind {
+		case pb.Check_One:
+			kind = datalog.CheckKindOne
+		case pb.Check_All:
+			kind = datalog.CheckKindAll
+		case pb.Check_Reject:
+			kind = datalog.CheckKindReject
+		default:
+			return nil, fmt.Errorf("deserialization error: invalid check kind: %v", input.Kind)
+		}
 	}
 
 	return &datalog.Check{
