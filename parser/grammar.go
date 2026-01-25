@@ -291,7 +291,7 @@ type Expr2 struct {
 }
 
 type OpExpr3 struct {
-	Operator Operator `@("<=" | ">=" | "<" | ">" | "==" | "!==")`
+	Operator Operator `@("<=" | ">=" | "<" | ">" | "==" | "!=" | "===" | "!==")`
 	Expr3    *Expr3   `@@`
 }
 
