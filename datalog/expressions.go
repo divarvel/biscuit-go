@@ -308,6 +308,9 @@ const (
 	BinaryGreaterThan
 	BinaryGreaterOrEqual
 	BinaryEqual
+	BinaryNotEqual
+	BinaryStrictEqual
+	BinaryStrictNotEqual
 	BinaryContains
 	BinaryPrefix
 	BinarySuffix
@@ -427,7 +430,7 @@ func (GreaterOrEqual) Eval(left Term, right Term, _ *SymbolTable) (Term, error) 
 }
 
 // Equal returns true when left and right are equal.
-// It requires left and right to have the same concrete type
+// It does not requires left and right to have the same concrete type
 // and only accepts Integer, Bytes or String.
 type Equal struct{}
 
@@ -435,6 +438,30 @@ func (Equal) Type() BinaryOpType {
 	return BinaryEqual
 }
 func (Equal) Eval(left Term, right Term, _ *SymbolTable) (Term, error) {
+	return Bool(left.Equal(right)), nil
+}
+
+// NotEqual returns true when left and right are not equal.
+// It does not requires left and right to have the same concrete type
+// and only accepts Integer, Bytes or String.
+type NotEqual struct{}
+
+func (NotEqual) Type() BinaryOpType {
+	return BinaryNotEqual
+}
+func (NotEqual) Eval(left Term, right Term, _ *SymbolTable) (Term, error) {
+	return Bool(!left.Equal(right)), nil
+}
+
+// StrictEqual returns true when left and right are strictly equal.
+// It requires left and right to have the same concrete type
+// and only accepts Integer, Bytes or String.
+type StrictEqual struct{}
+
+func (StrictEqual) Type() BinaryOpType {
+	return BinaryStrictEqual
+}
+func (StrictEqual) Eval(left Term, right Term, _ *SymbolTable) (Term, error) {
 	if g, w := left.Type(), right.Type(); g != w {
 		return nil, fmt.Errorf("datalog: Equal type mismatch: %d != %d", g, w)
 	}
@@ -452,6 +479,34 @@ func (Equal) Eval(left Term, right Term, _ *SymbolTable) (Term, error) {
 	}
 
 	return Bool(left.Equal(right)), nil
+}
+
+// StrictNotEqual returns true when left and right are strictly not equal.
+// It requires left and right to have the same concrete type
+// and only accepts Integer, Bytes or String.
+type StrictNotEqual struct{}
+
+func (StrictNotEqual) Type() BinaryOpType {
+	return BinaryStrictNotEqual
+}
+func (StrictNotEqual) Eval(left Term, right Term, _ *SymbolTable) (Term, error) {
+	if g, w := left.Type(), right.Type(); g != w {
+		return nil, fmt.Errorf("datalog: Equal type mismatch: %d != %d", g, w)
+	}
+
+	switch left.Type() {
+	case TermTypeInteger:
+	case TermTypeBytes:
+	case TermTypeString:
+	case TermTypeDate:
+	case TermTypeBool:
+	case TermTypeSet:
+
+	default:
+		return nil, fmt.Errorf("datalog: unexpected Equal value type: %d", left.Type())
+	}
+
+	return Bool(!left.Equal(right)), nil
 }
 
 // Contains returns true when the right value exists in the left Set.

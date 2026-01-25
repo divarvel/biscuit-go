@@ -241,6 +241,7 @@ const (
 	OpLessThan
 	OpGreaterThan
 	OpEqual
+	OpNotEqual
 	OpContains
 	OpPrefix
 	OpSuffix
@@ -250,12 +251,13 @@ const (
 	OpLength
 	OpNegate
 	OpStrictEqual
+	OpStrictNotEqual
 )
 
 var operatorMap = map[string]Operator{
 	"+": OpAdd,
 	"-": OpSub, "*": OpMul, "/": OpDiv, "&&": OpAnd, "||": OpOr, "<=": OpLessOrEqual, ">=": OpGreaterOrEqual, "<": OpLessThan, ">": OpGreaterThan,
-	"==": OpEqual, "===": OpStrictEqual, "!": OpNegate, "contains": OpContains, "starts_with": OpPrefix, "ends_with": OpSuffix, "matches": OpMatches, "intersection": OpIntersection, "union": OpUnion, "length": OpLength}
+	"==": OpEqual, "!=": OpNotEqual, "===": OpStrictEqual, "!==": OpStrictNotEqual, "!": OpNegate, "contains": OpContains, "starts_with": OpPrefix, "ends_with": OpSuffix, "matches": OpMatches, "intersection": OpIntersection, "union": OpUnion, "length": OpLength}
 
 func (o *Operator) Capture(s []string) error {
 	*o = operatorMap[s[0]]
@@ -288,7 +290,7 @@ type Expr2 struct {
 }
 
 type OpExpr3 struct {
-	Operator Operator `@("<=" | ">=" | "<" | ">" | "==")`
+	Operator Operator `@("<=" | ">=" | "<" | ">" | "==" | "!==")`
 	Expr3    *Expr3   `@@`
 }
 

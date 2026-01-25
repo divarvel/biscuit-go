@@ -397,6 +397,9 @@ const (
 	BinaryGreaterThan
 	BinaryGreaterOrEqual
 	BinaryEqual
+	BinaryNotEqual
+	BinaryStrictEqual
+	BinaryStrictNotEqual
 	BinaryContains
 	BinaryPrefix
 	BinarySuffix
@@ -426,6 +429,12 @@ func (op BinaryOp) convert(symbols *datalog.SymbolTable) datalog.Op {
 		return datalog.BinaryOp{BinaryOpFunc: datalog.GreaterOrEqual{}}
 	case BinaryEqual:
 		return datalog.BinaryOp{BinaryOpFunc: datalog.Equal{}}
+	case BinaryNotEqual:
+		return datalog.BinaryOp{BinaryOpFunc: datalog.NotEqual{}}
+	case BinaryStrictEqual:
+		return datalog.BinaryOp{BinaryOpFunc: datalog.StrictEqual{}}
+	case BinaryStrictNotEqual:
+		return datalog.BinaryOp{BinaryOpFunc: datalog.StrictNotEqual{}}
 	case BinaryContains:
 		return datalog.BinaryOp{BinaryOpFunc: datalog.Contains{}}
 	case BinaryPrefix:
@@ -467,6 +476,12 @@ func fromDatalogBinaryOp(symbols *datalog.SymbolTable, dbBinary datalog.BinaryOp
 		return BinaryGreaterOrEqual, nil
 	case datalog.BinaryEqual:
 		return BinaryEqual, nil
+	case datalog.BinaryNotEqual:
+		return BinaryNotEqual, nil
+	case datalog.BinaryStrictEqual:
+		return BinaryStrictEqual, nil
+	case datalog.BinaryStrictNotEqual:
+		return BinaryStrictNotEqual, nil
 	case datalog.BinaryContains:
 		return BinaryContains, nil
 	case datalog.BinaryPrefix:

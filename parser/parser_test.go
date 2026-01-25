@@ -22,7 +22,7 @@ type testCase struct {
 func getFactTestCases() []testCase {
 	return []testCase{
 		{
-			Input: `right("/a/file1.txt", "read", ["read", "/a/file2.txt"])`,
+			Input: `right("/a/file1.txt", "read", {"read", "/a/file2.txt"})`,
 			Expected: biscuit.Fact{
 				Predicate: biscuit.Predicate{
 					Name: "right",
@@ -51,7 +51,7 @@ func getFactTestCases() []testCase {
 			ExpectFailure: true,
 		},
 		{
-			Input:         `right("/a/file1.txt", [$0])`,
+			Input:         `right("/a/file1.txt", {$0})`,
 			ExpectFailure: true,
 		},
 	}
@@ -162,7 +162,7 @@ func getRuleTestCases() []testCase {
 			ExpectFailure: true,
 		},
 		{
-			Input: `rule1("a") <- body1("b"), $0 > 0, $1 < 1, $2 >= 2, $3 <= 3, $4 == 4, [1, 2, 3].contains($5), ![4,5,6].contains($6)`,
+			Input: `rule1("a") <- body1("b"), $0 > 0, $1 < 1, $2 >= 2, $3 <= 3, $4 == 4, {1, 2, 3}.contains($5), !{4,5,6}.contains($6)`,
 			Expected: biscuit.Rule{
 				Head: biscuit.Predicate{
 					Name: "rule1",
@@ -213,7 +213,7 @@ func getRuleTestCases() []testCase {
 			},
 		},
 		{
-			Input: `rule1("a") <- body1("b"), $0 == "abc", $1.starts_with("def"), $2.ends_with("ghi"), $3.matches("file[0-9]+.txt"), ["a","b"].contains($4), !["c", "d"].contains($5)`,
+			Input: `rule1("a") <- body1("b"), $0 == "abc", $1.starts_with("def"), $2.ends_with("ghi"), $3.matches("file[0-9]+.txt"), {"a", "b"}.contains($4), !{"c", "d"}.contains($5)`,
 			Expected: biscuit.Rule{
 				Head: biscuit.Predicate{
 					Name: "rule1",
@@ -259,7 +259,7 @@ func getRuleTestCases() []testCase {
 			},
 		},
 		{
-			Input: `rule1("a") <- body1("b"), ["a", "b"].contains($0), !["c", "d"].contains($1)`,
+			Input: `rule1("a") <- body1("b"), {"a", "b"}.contains($0), !{"c", "d"}.contains($1)`,
 			Expected: biscuit.Rule{
 				Head: biscuit.Predicate{
 					Name: "rule1",
@@ -319,7 +319,7 @@ func getRuleTestCases() []testCase {
 			},
 		},
 		{
-			Input: `rule1("a") <- body1($0, $1), ["abc", "def"].contains($0), ! [41, 42].contains($1)`,
+			Input: `rule1("a") <- body1($0, $1), {"abc", "def"}.contains($0), !{41, 42}.contains($1)`,
 			Expected: biscuit.Rule{
 				Head: biscuit.Predicate{
 					Name: "rule1",
@@ -368,7 +368,7 @@ func getRuleTestCases() []testCase {
 			ExpectFailure: true,
 		},
 		{
-			Input:         `rule1(#a) <- body1($0, $1), $0 in [$1, "foo"]`,
+			Input:         `rule1(#a) <- body1($0, $1), $0 in {$1, "foo"}`,
 			ExpectFailure: true,
 		},
 		{
@@ -445,7 +445,7 @@ func getRuleTestCases() []testCase {
 func getCheckTestCases() []testCase {
 	return []testCase{
 		{
-			Input: `check if parent("a", "b"), parent("b", "c"), [1,2,3].contains($0) or right("read", "/a/file1.txt")`,
+			Input: `check if parent("a", "b"), parent("b", "c"), {1,2,3}.contains($0) or right("read", "/a/file1.txt")`,
 			Expected: biscuit.Check{
 				Queries: []biscuit.Rule{
 					{
@@ -497,7 +497,7 @@ func getCheckTestCases() []testCase {
 			},
 		},
 		{
-			Input:         `[ caveat1($0) <- parent(#a, #b), parent(#b, #c) @ $0 in [1,2,3]`,
+			Input:         `[ caveat1($0) <- parent(#a, #b), parent(#b, #c) @ $0 in {1,2,3}`,
 			ExpectFailure: true,
 		},
 	}
