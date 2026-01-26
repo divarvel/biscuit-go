@@ -355,7 +355,13 @@ func tokenExprBinaryToProtoExprBinary(op datalog.BinaryOp) (*pb.OpBinary, error)
 	case datalog.BinaryGreaterOrEqual:
 		pbBinaryKind = pb.OpBinary_GreaterOrEqual
 	case datalog.BinaryEqual:
+		pbBinaryKind = pb.OpBinary_HeterogeneousEqual
+	case datalog.BinaryNotEqual:
+		pbBinaryKind = pb.OpBinary_HeterogeneousNotEqual
+	case datalog.BinaryStrictEqual:
 		pbBinaryKind = pb.OpBinary_Equal
+	case datalog.BinaryStrictNotEqual:
+		pbBinaryKind = pb.OpBinary_NotEqual
 	case datalog.BinaryContains:
 		pbBinaryKind = pb.OpBinary_Contains
 	case datalog.BinaryPrefix:
