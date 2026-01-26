@@ -97,34 +97,33 @@ func tokenTermToProtoTerm(input datalog.Term) (*pb.Term, error) {
 		}
 	case datalog.TermTypeSet:
 		datalogSet := input.(datalog.TermSet)
-		if len(datalogSet) == 0 {
-			return nil, errors.New("biscuit: failed to convert token ID to proto ID: set cannot be empty")
-		}
-
-		expectedEltType := datalogSet[0].Type()
-		switch expectedEltType {
-		case datalog.TermTypeVariable:
-			return nil, errors.New("biscuit: failed to convert token ID to proto ID: set cannot contains variable")
-		case datalog.TermTypeSet:
-			return nil, errors.New("biscuit: failed to convert token ID to proto ID: set cannot contains other sets")
-		}
-
 		protoSet := make([]*pb.Term, 0, len(datalogSet))
-		for _, datalogElt := range datalogSet {
-			if datalogElt.Type() != expectedEltType {
-				return nil, fmt.Errorf(
-					"biscuit: failed to convert token ID to proto ID: set elements must have the same type (got %x, want %x)",
-					datalogElt.Type(),
-					expectedEltType,
-				)
+
+		if len(datalogSet) > 0 {
+			expectedEltType := datalogSet[0].Type()
+			switch expectedEltType {
+			case datalog.TermTypeVariable:
+				return nil, errors.New("biscuit: failed to convert token ID to proto ID: set cannot contains variable")
+			case datalog.TermTypeSet:
+				return nil, errors.New("biscuit: failed to convert token ID to proto ID: set cannot contains other sets")
 			}
 
-			protoElt, err := tokenTermToProtoTerm(datalogElt)
-			if err != nil {
-				return nil, err
-			}
+			for _, datalogElt := range datalogSet {
+				if datalogElt.Type() != expectedEltType {
+					return nil, fmt.Errorf(
+						"biscuit: failed to convert token ID to proto ID: set elements must have the same type (got %x, want %x)",
+						datalogElt.Type(),
+						expectedEltType,
+					)
+				}
 
-			protoSet = append(protoSet, protoElt)
+				protoElt, err := tokenTermToProtoTerm(datalogElt)
+				if err != nil {
+					return nil, err
+				}
+
+				protoSet = append(protoSet, protoElt)
+			}
 		}
 		pbId = &pb.Term{
 			Content: &pb.Term_Set{
