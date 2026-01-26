@@ -217,8 +217,8 @@ type Term struct {
 	Date      *string    `| @DateTime`
 	Integer   *int64     `| @Int`
 	Bool      *Bool      `| @Bool`
-	Set       []*Term    `| "{" @@ ("," @@)* "}"`
-	EmptySet  []*Term    `| "{" "," "}"`
+	Set      []*Term `| "{" @@ ("," @@)* "}"`
+	EmptySet bool    `| @("{" "," "}")`
 }
 
 type Value struct {
@@ -565,7 +565,7 @@ func (a *Term) ToBiscuit(parameters ParametersMap) (biscuit.Term, error) {
 			biscuitSet = append(biscuitSet, setTerm)
 		}
 		biscuitTerm = biscuitSet
-	case a.EmptySet != nil:
+	case a.EmptySet:
 		biscuitTerm = make(biscuit.Set, 0)
 	case a.Parameter != nil:
 		var paramName string = string(*(a.Parameter))
