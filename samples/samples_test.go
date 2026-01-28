@@ -217,7 +217,11 @@ func CompareResult(root_key biscuit.PublicKey, filename string, token biscuit.Bi
 	if err != nil {
 		CompareError(err, v.Result.Err, t)
 	} else {
-		authorizer.AddAuthorizer(authorizer_code)
+		err = authorizer.AddAuthorizer(authorizer_code)
+		if err != nil {
+			CompareError(err, v.Result.Err, t)
+			return
+		}
 		err = authorizer.Authorize()
 		if err != nil {
 			CompareError(err, v.Result.Err, t)

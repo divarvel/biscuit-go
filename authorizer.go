@@ -19,10 +19,10 @@ var (
 )
 
 type Authorizer interface {
-	AddAuthorizer(a ParsedAuthorizer)
-	AddBlock(b ParsedBlock)
+	AddAuthorizer(a ParsedAuthorizer) error
+	AddBlock(b ParsedBlock) error
 	AddFact(fact Fact)
-	AddRule(rule Rule)
+	AddRule(rule Rule) error
 	AddCheck(check Check)
 	AddPolicy(policy Policy)
 	Authorize() error
@@ -80,33 +80,45 @@ func NewVerifier(b *Biscuit, opts ...AuthorizerOption) (Authorizer, error) {
 	return a, nil
 }
 
-func (v *authorizer) AddAuthorizer(a ParsedAuthorizer) {
-	v.AddBlock(a.Block)
+func (v *authorizer) AddAuthorizer(a ParsedAuthorizer) error {
+	if err := v.AddBlock(a.Block); err != nil {
+		return err
+	}
 	for _, p := range a.Policies {
 		v.AddPolicy(p)
 	}
+	return nil
 }
 
-func (v *authorizer) AddBlock(block ParsedBlock) {
+func (v *authorizer) AddBlock(block ParsedBlock) error {
 	for _, f := range block.Facts {
 		v.AddFact(f)
 	}
 	for _, r := range block.Rules {
-		v.AddRule(r)
+		if err := v.AddRule(r); err != nil {
+			return err
+		}
 	}
 	for _, c := range block.Checks {
 		v.AddCheck(c)
 	}
+	return nil
 }
 
 func (v *authorizer) AddFact(fact Fact) {
 	v.world.AddFact(datalog.AuthorizerOrigin(), fact.convert(v.symbols))
 }
 
-func (v *authorizer) AddRule(rule Rule) {
+func (v *authorizer) AddRule(rule Rule) error {
 	authorizerTrustedOrigins := datalog.AuthorizerTrustedOrigins(v.scopes, v.publicKeyToBlockId)
 	ruleTrustedOrigins := datalog.TrustedOriginsFromScopes(rule.Scopes, authorizerTrustedOrigins, math.MaxUint64, v.publicKeyToBlockId)
-	v.world.AddRule(math.MaxUint64, ruleTrustedOrigins, rule.convert(v.symbols))
+
+	datalog_rule := rule.convert(v.symbols)
+	if err := datalog_rule.ValidateVariables(); err != nil {
+		return err
+	}
+	v.world.AddRule(math.MaxUint64, ruleTrustedOrigins, datalog_rule)
+	return nil
 }
 
 func (v *authorizer) AddCheck(check Check) {
@@ -157,6 +169,9 @@ func (v *authorizer) Authorize() error {
 		}
 
 		for _, rule := range block.rules {
+			if err := rule.ValidateVariables(); err != nil {
+				return fmt.Errorf("biscuit: verification failed: failed to verify block #%d: %s", i+1, err)
+			}
 			r, err := fromDatalogRule(v.biscuit.symbols, rule)
 			if err != nil {
 				return fmt.Errorf("biscuit: verification failed: %s", err)

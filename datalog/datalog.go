@@ -195,12 +195,44 @@ type Rule struct {
 }
 
 type InvalidRuleError struct {
-	Rule            Rule
-	MissingVariable Variable
+	Rule             Rule
+	MissingVariables []Variable
 }
 
 func (e InvalidRuleError) Error() string {
-	return fmt.Sprintf("datalog: variable %d in head is missing from body and/or constraints", e.MissingVariable)
+	return fmt.Sprintf("datalog: variables %v in head are missing from body and/or constraints", e.MissingVariables)
+}
+
+// ValidateVariables checks that every variable in the rule's head
+// also appears in at least one body predicate.
+func (r Rule) ValidateVariables() error {
+	headVars := make(map[Variable]struct{})
+	for _, term := range r.Head.Terms {
+		if v, ok := term.(Variable); ok {
+			headVars[v] = struct{}{}
+		}
+	}
+
+	for _, predicate := range r.Body {
+		for _, term := range predicate.Terms {
+			if v, ok := term.(Variable); ok {
+				delete(headVars, v)
+				if len(headVars) == 0 {
+					return nil
+				}
+			}
+		}
+	}
+
+	if len(headVars) > 0 {
+		missing := make([]Variable, 0, len(headVars))
+		for v := range headVars {
+			missing = append(missing, v)
+		}
+		return InvalidRuleError{Rule: r, MissingVariables: missing}
+	}
+
+	return nil
 }
 
 func (r Rule) Apply(ruleOrigin uint64, factsIterator *FactIterator, newFacts *OriginFacts, syms *SymbolTable) error {
@@ -250,7 +282,7 @@ func (r Rule) Apply(ruleOrigin uint64, factsIterator *FactIterator, newFacts *Or
 			}
 			v, ok := res.MatchedVariables[k]
 			if !ok {
-				return InvalidRuleError{r, k}
+				return InvalidRuleError{Rule: r, MissingVariables: []Variable{k}}
 			}
 
 			predicate.Terms[i] = *v

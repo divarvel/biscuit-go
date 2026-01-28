@@ -88,7 +88,9 @@ func ExampleBiscuit() {
 	if err != nil {
 		panic(fmt.Errorf("failed to parse authorizer: %v", err))
 	}
-	v1.AddAuthorizer(authorizer)
+	if err := v1.AddAuthorizer(authorizer); err != nil {
+		panic(fmt.Errorf("failed to add authorizer: %v", err))
+	}
 
 	if err := v1.Authorize(); err != nil {
 		// fmt.Println(v1.PrintWorld())
@@ -111,7 +113,9 @@ func ExampleBiscuit() {
 	if err != nil {
 		panic(fmt.Errorf("failed to parse authorizer: %v", err))
 	}
-	v1.AddAuthorizer(authorizer)
+	if err := v1.AddAuthorizer(authorizer); err != nil {
+		panic(fmt.Errorf("failed to add authorizer: %v", err))
+	}
 
 	if err := v1.Authorize(); err != nil {
 		fmt.Println("forbidden to write /a/file1.txt")

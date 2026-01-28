@@ -149,7 +149,7 @@ func TestVerifierSerializeLoad(t *testing.T) {
 
 	v1.AddFact(fact1)
 	v1.AddFact(fact2)
-	v1.AddRule(rule1)
+	require.NoError(t, v1.AddRule(rule1))
 	v1.AddCheck(check1)
 	v1.AddPolicy(policy)
 	// s, err := v1.SerializePolicies()
